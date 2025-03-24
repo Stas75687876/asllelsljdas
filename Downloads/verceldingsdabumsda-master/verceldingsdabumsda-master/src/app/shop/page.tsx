@@ -246,39 +246,14 @@ export default function ShopPage() {
                 <div className="p-6 pt-0 mt-auto">
                   <div className="mt-4 flex space-x-2">
                     <button 
-                      onClick={() => {
-                        try {
-                          let imageUrl = '/images/placeholder.jpg';
-                          if (product.images && product.images.length > 0) {
-                            // Sichere Validierung der Bild-URL
-                            if (typeof product.images[0] === 'string' && 
-                               (product.images[0].startsWith('https://') || 
-                                product.images[0].startsWith('http://') || 
-                                product.images[0].startsWith('/'))) {
-                              imageUrl = product.images[0];
-                            }
-                          }
-                          
-                          addToCart({ 
-                            id: product.id.toString(), 
-                            name: product.name, 
-                            price: product.price,
-                            description: product.description,
-                            image: imageUrl,
-                            quantity: 1 
-                          });
-                        } catch (error) {
-                          console.error("Fehler beim Hinzufügen zum Warenkorb:", error);
-                          // Hinzufügen ohne Bild versuchen als Fallback
-                          addToCart({ 
-                            id: product.id.toString(), 
-                            name: product.name, 
-                            price: product.price,
-                            description: product.description,
-                            quantity: 1 
-                          });
-                        }
-                      }}
+                      onClick={() => addToCart({ 
+                        id: product.id.toString(), 
+                        name: product.name, 
+                        price: product.price,
+                        description: product.description,
+                        image: product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.jpg',
+                        quantity: 1 
+                      })}
                       className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
                     >
                       <ShoppingCart className="mr-2 h-4 w-4" />
