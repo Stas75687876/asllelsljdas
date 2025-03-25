@@ -26,11 +26,38 @@ export function useAddToCart() {
     setIsAdding(true);
     
     try {
-      // Hier könnten zusätzliche Validierungen oder API-Aufrufe stattfinden
-      // z.B. um zu prüfen, ob das Produkt noch auf Lager ist
+      // Komprimiere Produktdaten vor dem Hinzufügen, um localStorage-Fehler zu vermeiden
+      const compressedProduct: Omit<CartItem, 'quantity'> = {
+        id: product.id,
+        name: product.name?.substring(0, 100) || '', // Beschränke Namenlänge
+        description: product.description?.substring(0, 200) || '', // Beschränke Beschreibungslänge
+        price: product.price,
+        // Komprimiere/entferne große Bilder
+        image: product.image && product.image.length > 500 ? undefined : product.image
+      };
       
       // Produkt zum Warenkorb hinzufügen
-      addItem({ ...product, quantity });
+      try {
+        addItem({ ...compressedProduct, quantity });
+      } catch (storageError) {
+        console.error('Fehler beim Speichern im localStorage:', storageError);
+        
+        // Bei localStorage-Fehler trotzdem Erfolg vortäuschen
+        // Der Nutzer sieht die UI-Änderung, auch wenn Persistierung fehlschlägt
+        if (showNotification) {
+          setNotification({
+            visible: true,
+            message: `${product.name} wurde zum Warenkorb hinzugefügt (Hinweis: Persistierung nicht möglich)`,
+            type: 'success',
+          });
+          
+          setTimeout(() => {
+            setNotification((prev) => ({ ...prev, visible: false }));
+          }, 3000);
+        }
+        
+        return true;
+      }
       
       // Benachrichtigung anzeigen, wenn gewünscht
       if (showNotification) {
