@@ -8,11 +8,11 @@ import { useCart, CartItem } from './CartProvider';
 
 export default function Cart() {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, totalItems, totalPrice } = useCart();
-  const [isMounted, setIsMounted] = React.useState(false);
+  const [isClient, setIsClient] = React.useState(false);
 
-  // Workaround für hydration mismatch mit localStorage - verwenden Sie einen besseren Namen
+  // Workaround für hydration mismatch mit localStorage
   React.useEffect(() => {
-    setIsMounted(true);
+    setIsClient(true);
   }, []);
 
   // Schließe den Warenkorb mit ESC-Taste
@@ -23,29 +23,16 @@ export default function Cart() {
       }
     };
 
-    if (isCartOpen && isMounted) {
+    if (isCartOpen) {
       document.addEventListener('keydown', handleEscKey);
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscKey);
     };
-  }, [isCartOpen, setIsCartOpen, isMounted]);
+  }, [isCartOpen, setIsCartOpen]);
 
-  // Verhindern von Body-Scroll, wenn der Warenkorb geöffnet ist
-  React.useEffect(() => {
-    if (isCartOpen && isMounted) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [isCartOpen, isMounted]);
-
-  // Keine Darstellung auf Server-Side oder während der Hydration
-  if (!isMounted) return null;
+  if (!isClient) return null;
 
   return (
     <AnimatePresence>
@@ -66,7 +53,7 @@ export default function Cart() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col max-h-full"
+            className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col"
           >
             {/* Header */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">

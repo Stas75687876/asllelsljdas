@@ -40,30 +40,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Lade den Warenkorb aus dem localStorage beim ersten Rendern
   React.useEffect(() => {
-    if (typeof window === 'undefined') return; // Nicht auf dem Server ausführen
-    
     try {
       const savedCart = localStorage.getItem('cart');
       if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-        // Validierung des gespeicherten Warenkorbs
-        if (Array.isArray(parsedCart)) {
-          setCart(parsedCart);
-        } else {
-          // Ungültiges Format - leeren Warenkorb verwenden
-          console.error('Ungültiges Warenkorb-Format im localStorage, verwende leeren Warenkorb');
-          setCart([]);
-          localStorage.removeItem('cart');
-        }
+        setCart(JSON.parse(savedCart));
       }
     } catch (err) {
       console.error('Fehler beim Laden des Warenkorbs:', err);
-      // Beim Fehler localStorage löschen
-      try {
-        localStorage.removeItem('cart');
-      } catch (clearErr) {
-        console.error('Fehler beim Zurücksetzen des localStorage:', clearErr);
-      }
     } finally {
       setLoaded(true);
     }
@@ -71,12 +54,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Speichere den Warenkorb im localStorage wenn er sich ändert
   React.useEffect(() => {
-    if (!loaded || typeof window === 'undefined') return; // Nicht auf dem Server ausführen
-    
-    try {
+    if (loaded) {
       localStorage.setItem('cart', JSON.stringify(cart));
-    } catch (err) {
-      console.error('Fehler beim Speichern des Warenkorbs:', err);
     }
   }, [cart, loaded]);
 
@@ -91,11 +70,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Füge ein Produkt zum Warenkorb hinzu (oder erhöhe die Menge, wenn es bereits existiert)
   const addToCart = (product: Omit<CartItem, 'quantity'>) => {
-    if (!product || !product.id) {
-      console.error('Ungültiges Produkt beim Hinzufügen zum Warenkorb');
-      return;
-    }
-    
     setCart((prevCart: CartItem[]) => {
       const existingItemIndex = prevCart.findIndex(
         (item: CartItem) => item.id === product.id
@@ -121,14 +95,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Entferne ein Produkt aus dem Warenkorb
   const removeFromCart = (id: string) => {
-    if (!id) return;
     setCart((prevCart: CartItem[]) => prevCart.filter((item: CartItem) => item.id !== id));
   };
 
   // Aktualisiere die Menge eines Produkts im Warenkorb
   const updateQuantity = (id: string, quantity: number) => {
-    if (!id) return;
-    
     if (quantity <= 0) {
       removeFromCart(id);
       return;
@@ -144,11 +115,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Lösche den gesamten Warenkorb
   const clearCart = () => {
     setCart([]);
-    try {
-      localStorage.removeItem('cart');
-    } catch (err) {
-      console.error('Fehler beim Löschen des Warenkorbs aus dem localStorage:', err);
-    }
   };
 
   const value = {

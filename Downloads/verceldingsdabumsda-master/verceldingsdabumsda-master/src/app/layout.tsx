@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import ClientThemeProvider from '../components/client-theme-provider'
+import { CartProvider } from '../components/shop/CartProvider'
+import Cart from '../components/shop/Cart'
 import Debug from '../components/Debug'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -30,8 +32,11 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-black min-h-screen`}>
         <ClientThemeProvider>
-          {children}
-          {process.env.NODE_ENV !== 'production' && <Debug />}
+          <CartProvider>
+            {children}
+            <Cart />
+            {process.env.NODE_ENV !== 'production' && <Debug />}
+          </CartProvider>
         </ClientThemeProvider>
       </body>
     </html>
