@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ct-studio.store/sitemap.xml 
